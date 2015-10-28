@@ -51,7 +51,7 @@ def skew_correction(img):
 	#	cv2.line(img,(x1,y1),(x2,y2),200,2)
 	rotation.sort()
 	rot=rotation[len(rotation)/2]
-	print rot
+	# print rot
 	hight,width=img.shape
 	M = cv2.getRotationMatrix2D((hight/2,width/2),rot-90,1)
 	dst = cv2.warpAffine(img,M,(width,hight))

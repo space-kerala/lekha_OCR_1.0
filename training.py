@@ -38,17 +38,20 @@ def recognize(feature):
 	return a
 
 label_uni = []
-label_uni.append('0')
+f = open('label','r')
+for l in f:
+	label_uni.append(l[:-1])
+# label_uni.append('0')
 def label_unicode():
-	url='../samples/train_images/'
-	for i in range(101,208):
-		file=open(url+str(i)+'/utf8',"r")
-		i_uni=file.read()
-		i_uni=i_uni[:-1]
-		label_uni.append(i_uni)
+# 	url='../samples/train_images/'
+# 	for i in range(101,208):
+# 		file=open(url+str(i)+'/utf8',"r")
+# 		i_uni=file.read()
+# 		i_uni=i_uni[:-1]
+# 		label_uni.append(i_uni)
 	return label_uni
-label_unicode()
-label_uni.append('ം')
+# label_unicode()
+# label_uni.append('ം')
 def hog(img):
 	bin_n =16
 	gx = cv2.Sobel(img, cv2.CV_32F, 1, 0)
@@ -197,30 +200,3 @@ def test():
 	print 'accuracy :'+str(100.0*correct/count)+'%'
 	print ('accurate recognition :'+str(correct))
 	print ('total character tested :'+str(count))
-def gen_train_sample(im):
-	classifier.load('svm_class.xml')
-	img = pp.preprocess(im.copy())
-	contours2, hierarchy = cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
-	contours = []
-	for cnt in contours2:
-#		print (cv2.contourArea(cnt))
-		if(cv2.contourArea(cnt)>20):
-			contours.append(cnt)
-	X = [cv2.contourArea(C) for C in contours]
-#	print len(contours),len(X)
-	t=[i for i in range (0,len(contours))]
-	X,t = zip(*sorted(zip(X,t)))
-	i=0
-	for j in t:
-		x,y,w,h=cv2.boundingRect(contours[j])
-		box = im[y-1:y+h+1,x-1:x+w+1]
-		char = pp.preprocess(box.copy())
-		try:
-			f = zonewise_hu5(char)
-			fu= np.array(f,np.float32)
-			t = classifier.predict(fu)
-		except IndexError:
-			t = 0
-		cv2.imwrite('zsamp21_'+str(t)+str(i)+'.png',box)
-		i+=1
-#9446531566
