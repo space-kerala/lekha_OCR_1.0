@@ -18,7 +18,7 @@ def recognize_block(im):
 	i=0
 	string='word:'
 	for l in line:
-		cv2.imwrite('zline_'+str(i)+'.png',l.data)
+		# cv2.imwrite('zline_'+str(i)+'.png',l.data)
 		string=string+'\n'
 		j=0
 		for w in l.word_list:
@@ -59,34 +59,6 @@ def recognize_block(im):
 				c+=1
 		i+=1
 	return string
-# file=open('./result',"r")
-# t=file.read()
-# string =''
-# c=0
-# while(c<len(t)):
-# 	char= t[c]#[-1]
-# 	print char=='േ'
-# 	if(char=='െ' or char=='േ'):
-# 		try:
-# 			char2=t[c+1]#[-1]
-# 			string=string+char2
-# 			string=string+char
-# 			print 'e'#+char2+char
-# 			c+=1
-# 		except IndexError:
-# 			print 'e'
-# 			string=string+char
-# 	else:
-# 		string=string+char
-# 	c+=1
-# print string
-# train.test()
-# train.train()
-# url='../samples/Scans/news_paper30.png'
-# temp_fucn()
-
-
-# url='../samples/Scans/news_paper31.png'
 url = sys.argv[1]
 print 'opening file: '+url
 # url='Example/news_paper.png'
@@ -95,30 +67,8 @@ if(img==None):
 	print url+' does\'nt exist'
 	exit()
 img = pp.preprocess(img)
-# # word = pp.Word(img)
-# # for c in word.char_list:
-# # 	print train.label_uni[int(c.label)]
 im,rot = pp.skew_correction(img)
 # # cv2.imshow("img",im)
 # # cv2.waitKey(0)
 # # cv2.destroyAllWindows()
-# print recognize_block(im)
-
-
-# img = pp.preprocess(img)
-# print train.recognize(train.np.array(train.find_feature(img),train.np.float32))
-# #train.np.savetxt('t.txt',train.hog(img))
-# train.load()
-# train.test()
-# gen_train_sample(img)
-# #img = cv2.blur(img,(11,11))
-# #ret, im = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY_INV)
-# #cv2.imwrite('after_thresholding.png',im)
-
-# #kernel3 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(21,21))
-# #im = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel3)
-# #im = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel3)
-# #cv2.imwrite('opening.png',im)
-
-# #cv2.imwrite('houghlines3.png',im)
-# #pp.find_blocks(im)
+print recognize_block(im)
