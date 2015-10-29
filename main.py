@@ -35,15 +35,15 @@ def recognize_block(im):
 						if(label_list[int(char2.label)]in ['\'',',1',',2']):
 							string=string+'\"'
 							c+=1
-						elif(label_list[int(char.label)]in [',1',',2']):
-							string=string+','
 						else:
 							string=string+label_list[int(char.label)]
+					elif(label_list[int(char.label)]in [',1',',2']):
+						string=string+','
 					elif(label_list[int(char.label)]in ['ൾ2','ൾ']):
 						string=string+'ൾ'
 					elif(label_list[int(char.label)]in ['െ','േ','്ര']):
 						char2=w.char_list[c+1]
-						if(label_list[int(char2.label)]in ['െ','േ','്ര']):
+						if(label_list[int(char2.label)]in ['െ','്ര']):
 							char3=w.char_list[c+2]
 							string=string+label_list[int(char3.label)]
 							c+=1
@@ -54,7 +54,7 @@ def recognize_block(im):
 						string=string+label_list[int(char.label)]
 				except IndexError:
 					string=string+label_list[int(char.label)]
-				cv2.imwrite('output/zcline_'+str(i)+'_word_'+str(j)+'_c_'+str(k)+str(int(w.char_list[c].label))+'.png',w.char_list[c].data)
+				# cv2.imwrite('output/zcline_'+str(i)+'_word_'+str(j)+'_c_'+str(k)+str(int(w.char_list[c].label))+'.png',w.char_list[c].data)
 				k+=1
 				c+=1
 		i+=1
