@@ -1,2 +1,0 @@
-#echo "TIME";date
-python main.py $1
