@@ -36,7 +36,6 @@ def recognize(feature):
 			return label_uni.index('ം')
 		return label_uni.index('ഠ')
 	return a
-
 label_uni = []
 f = open('label','r')
 for l in f:
