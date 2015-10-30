@@ -1,3 +1,4 @@
+from __future__ import division
 import cv2
 import os
 import preprocess as pp
@@ -62,3 +63,66 @@ def gen_train_sample(im):
 # url='../samples/Scans/news_paper30.png'
 # url='../samples/Scans/test2.png'
 # temp_fucn()
+def make_compare_file():
+	f=open('./compare_list.txt','w')
+	img=cv2.imread('./Example/dc_books_page.png',0)
+	if(img==None):
+		print url+' does\'nt exist'
+		exit()
+	img = pp.preprocess(img)
+	im,rot = pp.skew_correction(img)
+
+	line = pp.find_lines(im.copy())
+	# print len(linene)
+	label_list=train.label_unicode()
+	i=0
+	num=[]
+	for l in line:
+		for w in l.word_list:
+			for c in w.char_list:
+				# num.append((str(i),label_list[int(c.label)]))
+				tup=label_list[int(c.label)]
+				f.write(tup+'\n')
+				# cv2.imwrite('samp/'+str(i)+'.png',c.data)
+				i+=1
+	f.close()
+		
+	
+
+	# for tup in num:
+	# 	# f.write(tup[0]+' '+tup[1]+'\n')
+	# 	f.write(tup[1]+'\n')
+	# f.close()
+def calculate_accuracy():
+	f=open('./compare_list.txt','r')
+	g=open('./preprocessed.txt','r')
+	h=open('./result_compare.txt','w')
+	l1=f.readlines()
+	l2=g.readlines()
+
+	j=0
+	k=0
+	for j in range(len(l1)):
+		# for line2 in l2:
+		a1=str(l1[j][:-1])
+		a2=str(l2[j][:-1])
+		# print a1+':'+a2
+		if a1==a2:
+			continue
+		else:
+			print str(j)+':'+a1+'and'+a2
+			h.write(str(j)+':'+a2+' as '+a1+'\n')
+			k+=1
+	print 'ERRORS:',k
+	print 'TOTAL:',j+1
+	print 'ACCURACY:',100-((k/(j+1))*100)
+
+			
+	
+
+
+
+
+# make_compare_file()
+calculate_accuracy()
+	
