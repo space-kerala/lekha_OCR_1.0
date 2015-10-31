@@ -30,17 +30,13 @@ def recognize_block(im):
 			while(c<len(w.char_list)):
 				char= w.char_list[c]
 				try:
-					if(label_list[int(char.label)]in ['\'',',1',',2']):
+					if(label_list[int(char.label)]in ['\'',',']):
 						char2=w.char_list[c+1]
-						if(label_list[int(char2.label)]in ['\'',',1',',2']):
+						if(label_list[int(char2.label)]in ['\'',',']):
 							string=string+'\"'
 							c+=1
 						else:
 							string=string+label_list[int(char.label)]
-					elif(label_list[int(char.label)]in [',1',',2']):
-						string=string+','
-					elif(label_list[int(char.label)]in ['ൾ2','ൾ']):
-						string=string+'ൾ'
 					elif(label_list[int(char.label)]in ['െ','േ','്ര']):
 						char2=w.char_list[c+1]
 						if(label_list[int(char2.label)]in ['െ','്ര']):

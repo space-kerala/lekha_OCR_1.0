@@ -1,4 +1,8 @@
 import cv2
+import numpy as np
+import glob
+import shutil
+from random import shuffle
 import os
 import preprocess as pp
 import training as train
@@ -24,6 +28,58 @@ def temp_inv_fucn():
 #		i_uni2=i_uni2[:-1]
 #		print i_uni,i_uni2
 		os.rename(url+j,url+i_uni)
+def train_svm():
+	svm_params = dict( kernel_type = cv2.SVM_RBF,
+	                    svm_type = cv2.SVM_C_SVC,
+	                    C=9.34, gamma=15.68 )
+	svm=cv2.SVM()
+	label_list=[]
+	label_list.append('a')
+	url='train_images/'
+	train_set = []
+	s_list=sorted(os.listdir(url))
+	label = 0
+	for i in s_list:
+		s_list=glob.glob(url+i+'/*.png')
+		if(len(s_list)>25):
+			file=open(url+i+'/utf8',"r")
+			i_uni=file.read()
+			i_uni=i_uni[:-1]
+			label_list.append(i_uni)
+			label+=1
+		else:
+			continue
+		print str(label),i,label_list[label],len(s_list)
+		for j in s_list:
+			img=cv2.imread(j,0)
+			img=pp.preprocess(img)
+			f =train.find_feature(img.copy())
+			# print len(f)
+			s = [label,f]
+			train_set.append(s)
+	f=open('label','w')
+	for l in label_list:
+		f.write(l+'\n')
+	f.close()
+
+	shuffle(train_set)
+	f_list = []
+	label = []
+	for t in train_set:
+		label.append(t[0])
+		f_list.append(t[1])
+#	np.savetxt('feature.txt',f_list)
+#	np.savetxt('label.txt',label)
+#	samples = np.loadtxt('feature.txt',np.float32)
+#	responses = np.loadtxt('label.txt',np.float32)
+#	responses = responses.reshape((responses.size,1))  
+	samples = np.array(f_list,np.float32)
+	responses = np.array(label,np.float32)
+	print 'auto training initiated'
+	print 'please wait.....'
+	svm.train(samples,responses,params=svm_params)
+	# svm.train_auto(samples,responses,None,None,params=svm_params)
+	svm.save("svm_class.xml")
 def gen_train_sample(im):
 #	train.classifierclassifier.load('svm_class.xml')
 	img = pp.preprocess(im.copy())
@@ -58,7 +114,7 @@ def gen_train_sample(im):
 		cv2.imwrite('samp/zsamp31_'+str(int(t))+'_'+str(i)+'.png',box)
 		i+=1
 # train.test()
-# train.train()
+# train_svm()
 # url='../samples/Scans/news_paper30.png'
 # url='../samples/Scans/test2.png'
 # temp_fucn()

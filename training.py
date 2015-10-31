@@ -30,9 +30,7 @@ def recognize(feature):
 		if(label_uni[int(pp.previous_char.label)].isdigit()):
 			return label_uni.index('0')
 		# print pp.previous_char.hight,pp.cur_char.hight
-		if(pp.cur_char.hight<=(pp.previous_char.hight*2/3)):
-			# print 'O not o  ം'
-			# return 93
+		if(pp.cur_char.hight<=(pp.previous_char.hight*3/4)):
 			return label_uni.index('ം')
 		return label_uni.index('ഠ')
 	return a
