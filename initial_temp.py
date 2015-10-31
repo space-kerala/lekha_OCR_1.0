@@ -139,7 +139,7 @@ def make_compare_file():
 				# num.append((str(i),label_list[int(c.label)]))
 				tup=label_list[int(c.label)]
 				f.write(tup+'\n')
-				# cv2.imwrite('samp/'+str(i)+'.png',c.data)
+				cv2.imwrite('samp/'+str(i)+'.png',c.data)
 				i+=1
 	f.close()
 		
@@ -167,7 +167,7 @@ def calculate_accuracy():
 			continue
 		else:
 			print str(j)+':'+a1+'and'+a2
-			h.write(str(j)+':'+a2+' as '+a1+'\n')
+			h.write(str(j)+' '+a2+' '+a1+'\n')
 			k+=1
 	print 'ERRORS:',k
 	print 'TOTAL:',j+1
@@ -179,6 +179,6 @@ def calculate_accuracy():
 
 
 
-# make_compare_file()
+make_compare_file()
 calculate_accuracy()
 	

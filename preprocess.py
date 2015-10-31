@@ -103,6 +103,7 @@ class Line:
 		self.word_list=find_words(img)
 
 def find_words(img):
+	global previous_char
 	hight,width=img.shape
 	word_list = []
 	ver_pix_den=[0 for i in range(0,width)]
