@@ -11,6 +11,8 @@ import cv2
 import sys
 import preprocess as pp
 import training as train
+sys.path.insert(0,'/home/jithin/lekha_OCR_1.0')
+import random
 def recognize_block(im):
 	line = pp.find_lines(im)
 	# print len(linene)
@@ -18,7 +20,7 @@ def recognize_block(im):
 	i=0
 	string='word:'
 	for l in line:
-		# cv2.imwrite('zline_'+str(i)+'.png',l.data)
+		cv2.imwrite('temp/zline_'+str(i)+'.png',l.data)
 		string=string+'\n'
 		j=0
 		for w in l.word_list:
@@ -57,14 +59,22 @@ def recognize_block(im):
 	return string
 url = sys.argv[1]
 print 'opening file: '+url
+# print "working"
 # url='Example/news_paper.png'
 img=cv2.imread(url,0)
+# cv2.imshow("img",img)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 if(img==None):
 	print url+' does\'nt exist'
 	exit()
 img = pp.preprocess(img)
-im,rot = pp.skew_correction(img)
-# # cv2.imshow("img",im)
-# # cv2.waitKey(0)
-# # cv2.destroyAllWindows()
+im=img
+# im,rot = pp.skew_correction(img)
+# print "working after between \n"
+# cv2.imshow("img",im)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+# cv2.imwrite('temp/'+str(random.randint(0,9))+'input.png',im)
 print recognize_block(im)
+# print "working after"

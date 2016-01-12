@@ -5,19 +5,81 @@ Created on Thu Sep 17 10:26:15 2015
 @author: james
 """
 #feature extraction and Recognition
+from __future__ import division
 import cv2
 import preprocess as pp
 import numpy as np
+import os
 import glob
 import shutil
+import itertools
 from random import shuffle
 classifier = cv2.SVM()
-classifier.load('svm_class.xml')
+classifier.load('/home/jithin/lekha_OCR_1.0/svm_class.xml')
 
 def find_feature(char):
-	return zonewise_hu5(char)
+	# htow_ratio(char)
+	# q=pixel_intensity(char)
+	# print q
+	# return zonewise_hu5(char)+feature_hu2(char)
+	# return feature_hu2(char)
+	# print len(hog(char))
+	# im=preprocess(char)
+	# return zonewise_hu5(char)+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]+hog(char)
 	# return hog(char)
+	# return zonewise_hu5(char)+zonewise_hu3(char)
+	# find_vlines(char.copy())
+	# print len(zonewise_hu5(char)+htow_ratio(char)+q)
+	return zonewise_hu5(char)+htow_ratio(char)+find_blobs(char)
 
+	# return zonewise_hu5(char)+zonewise_hu3(char)
+
+def find_vlines(img):
+	edges=cv2.Canny(img,50,150,apertureSize=3)
+	minLineLength=10
+	maxLineGap=15
+	lines=cv2.HoughLinesP(edges,1,np.pi,10,minLineLength,maxLineGap)
+	try:
+		for x1,y1,x2,y2 in lines[0]:
+			cv2.line(img,(x1,y1),(x2,y2),0,2)
+		print len(lines[0])
+	except:
+		print 0
+	
+	cv2.imshow('ske',img)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
+
+def preprocess(img):
+	cv2.imwrite('before_pp_thresholding.png',img)
+	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,243,50)
+	cv2.imwrite('after_pp_thresholding.png',img)
+	return img
+
+def htow_ratio(im):
+	h,w=im.shape
+	q=0
+	for i in range(h):
+		for j in range(w):
+			if im.item(i,j)==255:
+				q+=1
+	# print [h/w,(q/(h*w))]
+	return [h/w,(q/(h*w))]
+# def pixel_intensity(im):
+	
+# 	h,w=im.shape
+
+def find_blobs(im):
+	params=cv2.SimpleBlobDetector_Params()
+	params.filterByArea=True
+	params.minArea=10
+	params.filterByConvexity=True
+	params.minConvexity=0.87
+	detector=cv2.SimpleBlobDetector(params)
+	keypoints=detector.detect(im)
+	# print len(keypoints)
+	return [len(keypoints)]
+	
 def recognize(feature):
 	a = classifier.predict(feature)
 	# print (label_uni[int(a)]=='ഠ')
@@ -32,10 +94,28 @@ def recognize(feature):
 		# print pp.previous_char.hight,pp.cur_char.hight
 		if(pp.cur_char.hight<=(pp.previous_char.hight*3/4)):
 			return label_uni.index('ം')
+		# print '0'
 		return label_uni.index('ഠ')
+# ===========================================my additions
+	# if (label_uni[int(a)]=='\'' or label_uni[int(a)]==','):
+	# 	# print pp.previous_char
+	# 	if(pp.previous_char==None):
+	# 		return label_uni.index('\'')
+		
+	# 	if(pp.cur_char.hight<=(pp.previous_char.hight*3/4)):
+	# 		return label_uni.index(',')
+	# 	# print '0'
+	# 	return label_uni.index('\'')
+# =====================================
+	# if (pp.previous_char!= None):
+	# 	if (label_uni[int(pp.previous_char.label)]=='ം'):
+	# 		if(pp.cur_char.hight*3/4<pp.previous_char.hight):
+	# 			pp.previous_char.label= label_uni.index('ഠ')
+	# 			print 'ഠ'
+
 	return a
 label_uni = []
-f = open('label','r')
+f = open('/home/jithin/lekha_OCR_1.0/label','r')
 for l in f:
 	label_uni.append(l[:-1])
 # label_uni.append('0')
@@ -48,7 +128,7 @@ def label_unicode():
 # 		label_uni.append(i_uni)
 	return label_uni
 # label_unicode()
-# label_uni.append('ം')
+label_uni.append('ം')
 def hog(img):
 	bin_n =16
 	gx = cv2.Sobel(img, cv2.CV_32F, 1, 0)
@@ -87,6 +167,93 @@ def feature_hu2(img):
 		except IndexError:
 			[list.append(0.0) for j in range(0,6)]
 	return list
+
+
+#jithin-additions
+
+def zonewise_hu2(img):
+	# global ter
+	contours, hierarchy = cv2.findContours(img.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+	X = [cv2.contourArea(C) for C in contours]
+	t=[i for i in range (0,len(contours))]
+	X,t = zip(*sorted(zip(X,t),reverse=True))
+	cnt = contours[t[0]]
+	x,y,w,h=cv2.boundingRect(cnt)
+	im = img[y-1:y+h+1,x-1:x+w+1]
+	# cv2.imwrite('zq2nd'+str(ter)+'.png',im)
+	hight,width=im.shape
+	box = img[0:1,0:1]
+	box[0,0]=0
+	box = cv2.resize(box,(width,hight))
+	img4=[]
+	[img4.append(box.copy())for i in range(0,4)]
+	i=0
+	for i in range (0,hight):
+		j=(int)(i*width/hight)
+		for k in range(0,width):
+			if(k<j):
+				img4[0][i,k]=im[i,k]
+				img4[0][hight-i-1,k]=im[hight-i-1,k]
+			elif(k>width-j):
+				img4[2][i,k]=im[i,k]
+				img4[2][hight-i-1,k]=im[hight-i-1,k]
+			else:	
+				img4[1][i,k]=im[i,k]
+				img4[3][hight-i-1,k]=im[hight-i-1,k]
+		if (j>width/2):
+			break
+	# i=0
+	# for img in img4:
+	# 	cv2.imwrite('zq2nd'+str(ter)+'_'+str(i)+'.png',img)
+	# 	i+=1
+	# ter+=1
+	feature = []
+	for img in img4:
+		feature = feature+list(itertools.chain(feature_hu2(img)))
+	return feature
+
+def zonewise_hu3(img):
+	# global ter
+	contours, hierarchy = cv2.findContours(img.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+	X = [cv2.contourArea(C) for C in contours]
+	t=[i for i in range (0,len(contours))]
+	X,t = zip(*sorted(zip(X,t),reverse=True))
+	cnt = contours[t[0]]
+	x,y,w,h=cv2.boundingRect(cnt)
+
+
+	im = img[y-1:y+h+1,x-1:x+w+1]
+
+	# cv2.imshow("img",im)
+	# cv2.waitKey(0)
+	# cv2.destroyAllWindows()
+	# cv2.imwrite('./samples/samp'+str(i)+'.png',im)
+
+
+
+	hight,width=img.shape
+	M = cv2.moments(cnt)
+	try:
+		cx = int(M['m10']/M['m00'])
+		cy = int(M['m01']/M['m00'])
+	except:
+		return [0]*48
+	img4=[]
+	img4.append(img[0:cy,0:cx])
+	img4.append(img[0:cy,cx:width])
+	img4.append(img[cy:hight,0:cx])
+	img4.append(img[cy:hight,cx:width])
+	i=0
+#	for img in img4:
+#		cv2.imwrite('zq'+str(ter)+str(i)+'.png',img)
+#		i+=1
+#	ter+=1
+	feature = []
+	for img in img4:
+		feature = feature+list(itertools.chain(feature_hu2(img)))
+		# print str(len(feature))+'hai'
+	return feature
+
 
 def zonewise_hu5(img):#diagonal with more contours
 	global ter
@@ -133,41 +300,9 @@ def zonewise_hu5(img):#diagonal with more contours
 		feature = feature+feature_hu2(img)
 	return feature
 
-def train():
-	svm_params = dict( kernel_type = cv2.SVM_RBF,
-	                    svm_type = cv2.SVM_C_SVC,
-	                    C=19.34, gamma=25.68 )
-	svm=cv2.SVM()
-	url='../samples/train_images/'
-	train_set = []
-	for i in range(101,208):
-		s_list=glob.glob(url+str(i)+'/*.png')
-		print i,label_uni[i-100],len(s_list)
-		for j in s_list:
-			img=cv2.imread(j,0)
-			img=pp.preprocess(img)
-			f =find_feature(img.copy())
-			# print len(f)
-			s = [i-100,f]
-			train_set.append(s)
-	shuffle(train_set)
-	f_list = []
-	label = []
-	for t in train_set:
-		label.append(t[0])
-		f_list.append(t[1])
-#	np.savetxt('feature.txt',f_list)
-#	np.savetxt('label.txt',label)
-#	samples = np.loadtxt('feature.txt',np.float32)
-#	responses = np.loadtxt('label.txt',np.float32)
-#	responses = responses.reshape((responses.size,1))  
-	samples = np.array(f_list,np.float32)
-	responses = np.array(label,np.float32)
-	print 'auto training initiated'
-	print 'please wait.....'
-	svm.train(samples,responses,params=svm_params)
-	# svm.train_auto(samples,responses,None,None,params=svm_params)
-	svm.save("svm_class.xml")
+
+
+
 def load():
 	classifier.load('svm_class.xml')
 

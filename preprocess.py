@@ -143,7 +143,7 @@ class Word:
 def find_lettes(img):
 	global previous_char
 	char_list = []
-	cv2.imwrite('t_word.png',img)
+	cv2.imwrite('temp/t_word.png',img)
 	contours2, hierarchy = cv2.findContours(img.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
 	if(len(contours2)==0):
 		return char_list
@@ -159,7 +159,10 @@ def find_lettes(img):
 	Mset = [cv2.moments(cnt) for cnt in contours]
 	X = [int(M['m10']/M['m00']) for M in Mset]
 	index = [i for i in range(0,len(contours2))]
-	X,index = zip(*sorted(zip(X,index)))
+	try:
+		X,index = zip(*sorted(zip(X,index)))
+	except:
+		return []
 	for i in index:
 		cnt = contours[i]
 		box = center_box(img.copy(),cnt)
