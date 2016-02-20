@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+# from __future__ import division
 import cv2
 import numpy as np
 import glob
 import shutil
 from random import shuffle
 import os
-import preprocess as pp
-import training as train
 import json
 import re
+
+import preprocess as pp
+import training as train
 #import myapp as app
 def temp_fucn():
 	url='../samples/train_images/'
@@ -135,11 +136,12 @@ def gen_train_sample(im):
 
 # url='../samples/Scans/test2.png'
 # temp_fucn()
+tno=1
 def make_compare_file():
-	f=open('./Samp_22/compare_list.txt','w')
-	g=open('./Samp_22/output_file.txt','w')
+	f=open('./corrected_docs/Samp_'+str(tno)+'/compare_list_new.txt','w')
+	g=open('./corrected_docs/Samp_'+str(tno)+'/output_file_new.txt','w')
 	# img=cv2.imread('./Example/dc_books_page.png',0)
-	path='Samp_22/*.jpeg'
+	path='./corrected_docs/Samp_'+str(tno)+'/*.png'
 	url=glob.glob(path)
 	img=cv2.imread(url[0],0)
 	# img=cv2.imread('./Samp_3/samp3.png',0)
@@ -162,22 +164,19 @@ def make_compare_file():
 				tup=label_list[int(c.label)]
 				f.write(tup+'\n')
 				g.write(tup)
-				cv2.imwrite('./Samp_22/samp/'+str(i)+'.png',c.data)
+				# cv2.imwrite('./Samp_22/samp/'+str(i)+'.png',c.data)
 				i+=1
 			g.write(' ')
 		g.write('\n')
 	f.close()
 	g.close()
-		
-# make_compare_file()	
-
 	# for tup in num:
 	# 	# f.write(tup[0]+' '+tup[1]+'\n')
 	# 	f.write(tup[1]+'\n')
 	# f.close()
 def calculate_accuracy():
-	f=open('./compare_list.txt','r')
-	g=open('./preprocessed.txt','r')
+	f=open('./corrected_docs/Samp_'+str(tno)+'/compare_list.txt','r')
+	g=open('./corrected_docs/Samp_'+str(tno)+'/compare_list_new.txt','r')
 	h=open('./result_compare.txt','w')
 	l1=f.readlines()
 	l2=g.readlines()
@@ -200,8 +199,10 @@ def calculate_accuracy():
 	print 'ERRORS:',k
 	print 'TOTAL:',j+1
 	print 'ACCURACY:',100-((k/(j+1))*100)
-
-# calculate_accuracy()
+# for tno in range(1,17):
+# 	print 'DOC_'+str(tno)
+# 	make_compare_file()	
+# 	calculate_accuracy()
 
 def find_vlines(img):
 	edges = cv2.Canny(img,50,150,apertureSize = 3)

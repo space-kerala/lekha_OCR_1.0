@@ -15,7 +15,7 @@ import shutil
 import itertools
 from random import shuffle
 classifier = cv2.SVM()
-classifier.load('/home/jithin/lekha_OCR_1.0/svm_class.xml')
+classifier.load('/home/james/lekha_OCR_1.0/svm_class.xml')
 
 def find_feature(char):
 	# htow_ratio(char)
@@ -66,8 +66,6 @@ def htow_ratio(im):
 	# print [h/w,(q/(h*w))]
 	return [h/w,(q/(h*w))]
 # def pixel_intensity(im):
-	
-# 	h,w=im.shape
 
 def find_blobs(im):
 	params=cv2.SimpleBlobDetector_Params()
@@ -115,7 +113,7 @@ def recognize(feature):
 
 	return a
 label_uni = []
-f = open('/home/jithin/lekha_OCR_1.0/label','r')
+f = open('/home/james/lekha_OCR_1.0/label','r')
 for l in f:
 	label_uni.append(l[:-1])
 # label_uni.append('0')
@@ -156,7 +154,7 @@ def feature_hu2(img):
 	list = []
 	for i in range (0,2):
 		try:
-#			print (i)
+ #			print (i)
 			cnt = contours[i]
 			if(cv2.contourArea(cnt)<4):
 				[list.append(0.0) for j in range(0,6)]
@@ -244,16 +242,15 @@ def zonewise_hu3(img):
 	img4.append(img[cy:hight,0:cx])
 	img4.append(img[cy:hight,cx:width])
 	i=0
-#	for img in img4:
-#		cv2.imwrite('zq'+str(ter)+str(i)+'.png',img)
-#		i+=1
-#	ter+=1
+ #	for img in img4:
+ #		cv2.imwrite('zq'+str(ter)+str(i)+'.png',img)
+ #		i+=1
+ #	ter+=1
 	feature = []
 	for img in img4:
 		feature = feature+list(itertools.chain(feature_hu2(img)))
 		# print str(len(feature))+'hai'
 	return feature
-
 
 def zonewise_hu5(img):#diagonal with more contours
 	global ter
