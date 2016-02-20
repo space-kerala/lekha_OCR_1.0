@@ -17,3 +17,15 @@ for recognize a scanned malayalam document
 for example
 
     $./lekhaocr Example/dc_books_page.png
+
+Supporters
+=======
+This project is funded by ICFOSS, technically guiderd under space-kerala.
+
+Contributors
+=======
+Arun Joseph contributed most of the engine devolopments.
+Jithin Thankachan contributed some additional features, training tool and helped in documentatiuon.
+Rijoy V contributed in initial research.
+Ambily Sreekumar contibuted in building data set for training.
+Arun M helped in project mangement and technical assistace.
