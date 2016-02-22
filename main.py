@@ -4,7 +4,7 @@ Created on Thu Sep 17 10:25:26 2015
 
 Project Malayalam OCR - Lekha
 -----------------------------
-Sponsered by ICFOSS
+Sponsored by ICFOSS
 
 contributers : james, jithin
 """
@@ -66,7 +66,7 @@ def recognize_block(im):
 		i+=1
 	return string
 	
-url = sys.argv[1] #geting file url from cammand prompt
+url = sys.argv[1] #geting file url from command prompt
 # print 'opening file: '+url
 
 # url='Example/news_paper.png'
@@ -75,7 +75,7 @@ img=cv2.imread(url,0)
 # cv2.imshow("img",img)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
-if(img==None):
+if(img.data==None):
 	print url+' does\'nt exist'
 	exit()
 img = pp.preprocess(img)
