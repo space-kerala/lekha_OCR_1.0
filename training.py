@@ -14,8 +14,10 @@ import glob
 import shutil
 import itertools
 from random import shuffle
+from path import *
+
 classifier = cv2.SVM()
-classifier.load('/home/james/lekha_OCR_1.0/svm_class.xml')
+classifier.load(PATH_TO_MAIN+'svm_class.xml')
 
 def find_feature(char):
 	# htow_ratio(char)
@@ -89,8 +91,8 @@ def recognize(feature):
 			return label_uni.index('0')
 		if(label_uni[int(pp.previous_char.label)].isdigit()):
 			return label_uni.index('0')
-		# print pp.previous_char.hight,pp.cur_char.hight
-		if(pp.cur_char.hight<=(pp.previous_char.hight*3/4)):
+		# print pp.previous_char.height,pp.cur_char.height
+		if(pp.cur_char.height<=(pp.previous_char.height*3/4)):
 			return label_uni.index('ം')
 		# print '0'
 		return label_uni.index('ഠ')
@@ -100,20 +102,20 @@ def recognize(feature):
 	# 	if(pp.previous_char==None):
 	# 		return label_uni.index('\'')
 		
-	# 	if(pp.cur_char.hight<=(pp.previous_char.hight*3/4)):
+	# 	if(pp.cur_char.height<=(pp.previous_char.height*3/4)):
 	# 		return label_uni.index(',')
 	# 	# print '0'
 	# 	return label_uni.index('\'')
 # =====================================
 	# if (pp.previous_char!= None):
 	# 	if (label_uni[int(pp.previous_char.label)]=='ം'):
-	# 		if(pp.cur_char.hight*3/4<pp.previous_char.hight):
+	# 		if(pp.cur_char.height*3/4<pp.previous_char.height):
 	# 			pp.previous_char.label= label_uni.index('ഠ')
 	# 			print 'ഠ'
 
 	return a
 label_uni = []
-f = open('/home/james/lekha_OCR_1.0/label','r')
+f = open(PATH_TO_MAIN+'/label','r')
 for l in f:
 	label_uni.append(l[:-1])
 # label_uni.append('0')
@@ -179,25 +181,25 @@ def zonewise_hu2(img):
 	x,y,w,h=cv2.boundingRect(cnt)
 	im = img[y-1:y+h+1,x-1:x+w+1]
 	# cv2.imwrite('zq2nd'+str(ter)+'.png',im)
-	hight,width=im.shape
+	height,width=im.shape
 	box = img[0:1,0:1]
 	box[0,0]=0
-	box = cv2.resize(box,(width,hight))
+	box = cv2.resize(box,(width,height))
 	img4=[]
 	[img4.append(box.copy())for i in range(0,4)]
 	i=0
-	for i in range (0,hight):
-		j=(int)(i*width/hight)
+	for i in range (0,height):
+		j=(int)(i*width/height)
 		for k in range(0,width):
 			if(k<j):
 				img4[0][i,k]=im[i,k]
-				img4[0][hight-i-1,k]=im[hight-i-1,k]
+				img4[0][height-i-1,k]=im[height-i-1,k]
 			elif(k>width-j):
 				img4[2][i,k]=im[i,k]
-				img4[2][hight-i-1,k]=im[hight-i-1,k]
+				img4[2][height-i-1,k]=im[height-i-1,k]
 			else:	
 				img4[1][i,k]=im[i,k]
-				img4[3][hight-i-1,k]=im[hight-i-1,k]
+				img4[3][height-i-1,k]=im[height-i-1,k]
 		if (j>width/2):
 			break
 	# i=0
@@ -229,7 +231,7 @@ def zonewise_hu3(img):
 
 
 
-	hight,width=img.shape
+	height,width=img.shape
 	M = cv2.moments(cnt)
 	try:
 		cx = int(M['m10']/M['m00'])
@@ -239,8 +241,8 @@ def zonewise_hu3(img):
 	img4=[]
 	img4.append(img[0:cy,0:cx])
 	img4.append(img[0:cy,cx:width])
-	img4.append(img[cy:hight,0:cx])
-	img4.append(img[cy:hight,cx:width])
+	img4.append(img[cy:height,0:cx])
+	img4.append(img[cy:height,cx:width])
 	i=0
  #	for img in img4:
  #		cv2.imwrite('zq'+str(ter)+str(i)+'.png',img)
@@ -270,25 +272,25 @@ def zonewise_hu5(img):#diagonal with more contours
 			if(cv2.pointPolygonTest(cnt,(i,j),False)==-1):
 				img[j,i]=0
 	im = img[y-1:y+h+1,x-1:x+w+1]
-	hight,width=im.shape
+	height,width=im.shape
 	box = img[0:1,0:1]
 	box[0,0]=0
-	box = cv2.resize(box,(width,hight))
+	box = cv2.resize(box,(width,height))
 	img4=[]
 	[img4.append(box.copy())for i in range(0,4)]
 	i=0
-	for i in range (0,hight):
-		j=(int)(i*width/hight)
+	for i in range (0,height):
+		j=(int)(i*width/height)
 		for k in range(0,width):
 			if(k<j):
 				img4[0][i,k]=im[i,k]
-				img4[0][hight-i-1,k]=im[hight-i-1,k]
+				img4[0][height-i-1,k]=im[height-i-1,k]
 			elif(k>width-j):
 				img4[2][i,k]=im[i,k]
-				img4[2][hight-i-1,k]=im[hight-i-1,k]
+				img4[2][height-i-1,k]=im[height-i-1,k]
 			else:	
 				img4[1][i,k]=im[i,k]
-				img4[3][hight-i-1,k]=im[hight-i-1,k]
+				img4[3][height-i-1,k]=im[height-i-1,k]
 		if (j>width/2):
 			break
 	i=0

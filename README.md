@@ -5,13 +5,12 @@ Printed text recognizer for Malayalam, Lekha OCR is an optical character recogni
 Prerequirements
 ======
 OpenCV 2.4.11
-
 Python 2.7.9
 
 Usage
 ======
 Currently only block recognition is available. Layout analysis is at devoloping stage.
-for recognize a scanned malayalam document
+To recognize a scanned malayalam document and get the malayalam characters as output.
 
     $./lekhaocr <filename>
 for example
@@ -20,7 +19,7 @@ for example
 
 Supporters
 =======
-This project is funded by ICFOSS, technically guiderd under space-kerala.
+This project is funded by ICFOSS, technically guided under space-kerala.
 
 Contributors
 =======
