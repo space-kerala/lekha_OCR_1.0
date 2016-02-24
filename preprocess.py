@@ -1,33 +1,42 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Sep 17 10:22:39 2015
-
 @author: james
 """
-#preprocess and Segmentation
+#Preprocess and Segmentation
 import cv2
 import numpy as np
 import training as train
 
 # current_line = 0
 # current_word = 0
+
 previous_char = None
 cur_char = None
 BOX_SIZE = 128
+
 def preprocess(img):#eliptical kernel
+	"""Does adaptive thresholding to the image.Converts it into a binary image"""
 	cv2.imwrite('before_pp_thresholding.png',img)
 	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,243,50)
 	cv2.imwrite('after_pp_thresholding.png',img)
 	return img
+# Read more : http://docs.opencv.org/3.1.0/d7/d4d/tutorial_py_thresholding.html
+
+
 def skew_correction(img):
-	hight,width=img.shape
-	if(hight>1200 and width>1200):
-		box = img[hight/2-600:hight/2+600,width/2-600:width/2+600]
-		hight,width=box.shape
+	height,width=img.shape
+	if(height>1200 and width>1200):
+		box = img[height/2-600:height/2+600,width/2-600:width/2+600]
+		height,width=box.shape
 	else:
 		box = img
+	# Canny : Extracts the edges from the image
+	# Read More : http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html
+	# HoughLines : Gets the lines from the image
+	# http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html
 	edges = cv2.Canny(box,50,150,apertureSize = 3)
-	lines = cv2.HoughLines(edges,1,np.pi/360,width/5,width/2,hight/10)
+	lines = cv2.HoughLines(edges,1,np.pi/360,width/5,width/2,height/10)
 #	print lineskernel3 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
 	count=0
 	rotation=[]
@@ -52,30 +61,44 @@ def skew_correction(img):
 	rotation.sort()
 	rot=rotation[len(rotation)/2]
 	# print rot
-	hight,width=img.shape
-	M = cv2.getRotationMatrix2D((hight/2,width/2),rot-90,1)
-	dst = cv2.warpAffine(img,M,(width,hight))
+	height,width=img.shape
+	M = cv2.getRotationMatrix2D((height/2,width/2),rot-90,1)
+	dst = cv2.warpAffine(img,M,(width,height))
 	return dst,rot
+
 def center_box(img,cnt):
+	"""Finds the bounding rectangle of the given set of countours cnt"""
+	# Read More : http://docs.opencv.org/master/da/d0c/tutorial_bounding_rects_circles.html
 	x,y,w,h=cv2.boundingRect(cnt)
 	char=img[y-1:y+h+1,x-1:x+w+1]
 	return char
 	
+# Left for layout analysis : For later development
 def find_blocks(img):
+	"""Finds the blocks of text and converts it to a binary image
+		Then reduces noise"""
+	# uint16 : Unsigned integer (0 to 65535)
+	# ones : Return a new array of given shape and type, filled with ones.
 	kernel = np.ones((6,4),np.uint16)
 	kernel2 = np.ones((4,4),np.uint16)
+	#Erosion : Discards pixels near boundary,thinckness of foreground obj decreases.Reduces noise
+	#Dilation: Opposite of Erosion.Follows erosion usually to rebuild object after removing noise
+	# Read More : http://docs.opencv.org/3.0-beta/doc/py_tutorials/py_imgproc/py_morphological_ops/py_morphological_ops.html
 	im = cv2.erode(img,kernel2,iterations = 8)
 	im = cv2.dilate(img,kernel,iterations = 4)
 	im = cv2.erode(img,kernel2,iterations = 4)
 	im = cv2.dilate(img,kernel2,iterations = 6)
 #	im = cv2.erode(img,kernel,iterations = 2)
 	cv2.imwrite('block.png',im)
+
+
 def find_lines(img):
+	"""Finds lines by taking the average pixel deinsity and cutting based on max_cuts"""
 	cv2.imwrite('t_img_in.png',img)
 	line_list =[]
-	hight,width=img.shape
-	hor_pix_den=[0 for i in range(0,hight)]
-	for i in range(0,hight):
+	height,width=img.shape
+	hor_pix_den=[0 for i in range(0,height)]
+	for i in range(0,height):
 		for j in range(0,width):
 			hor_pix_den[i]+=img[i,j]
 		hor_pix_den[i]/=255
@@ -83,7 +106,7 @@ def find_lines(img):
 	max_cuts = 8
 	min_line_width = 20
 	j,start=0,0
-	for i in range (0,hight):
+	for i in range (0,height):
 		j = i
 		if(hor_pix_den[i]<max_cuts):
 			if(min_line_width>j-start):
@@ -95,7 +118,9 @@ def find_lines(img):
 				start = j
 #	print line_list
 	return line_list
+
 class Line:
+	"""Cuts the blocks into lines.Then sends it to be cut as words"""
 	no_words = 0
 	def __init__(self,img):
 		self.data = img
@@ -104,15 +129,15 @@ class Line:
 
 def find_words(img):
 	global previous_char
-	hight,width=img.shape
+	height,width=img.shape
 	word_list = []
 	ver_pix_den=[0 for i in range(0,width)]
 	for i in range(0,width):
-		for j in range(0,hight):
+		for j in range(0,height):
 			ver_pix_den[i]+=img[j,i]
 		ver_pix_den[i]/=255
 	max_cuts = 1
-	min_word_sep = hight/5
+	min_word_sep = height/5
 	j,i,start=0,0,0
 	while(i<width):
 		if (ver_pix_den[i]<=max_cuts):
@@ -122,7 +147,7 @@ def find_words(img):
 			if(j-i>min_word_sep):
 				if(i-start>min_word_sep):
 					previous_char=None
-					word = Word(img[0:hight,start:i+1])
+					word = Word(img[0:height,start:i+1])
 					word_list.append(word)
 				start=j
 				i=j
@@ -130,7 +155,7 @@ def find_words(img):
 				i=j
 		i+=1
 	if(i-start>min_word_sep):
-		word = Word(img[0:hight,start-1:i+1])
+		word = Word(img[0:height,start-1:i+1])
 		word_list.append(word)
 	return word_list
 
@@ -176,20 +201,22 @@ class Letters:
 	def __init__(self,char):
 		global cur_char 
 		cur_char = self
-		self.hight,t=char.shape
+		self.height,t=char.shape
 		self.data=char
 		self.feature=np.array(train.find_feature(self.data.copy()),np.float32)
 		self.label=train.recognize(self.feature)
-	# def hight(self):
+	# def height(self):
 	# 	h,w=self.data.shape
 	# 	return h
+
 def find_sw(img):
+	"""Function to find stroke width """
 	global stroke_width
 #	if(stroke_width !=0):
 #		return stroke_width
-	hight,width = img.shape
+	height,width = img.shape
 	array = [0 for i in range(0,width/2)]
-	for j in range(0,hight):
+	for j in range(0,height):
 		count = 0
 		for i in range (0,width):
 			if(img[j,i]==255):
@@ -200,3 +227,56 @@ def find_sw(img):
 	array[0]=0
 	stroke_width = array.index(max(array))
 	return stroke_width
+
+
+def recognize_block(im):
+"""Recgnizing a block of scanned image"""
+	line = pp.find_lines(im)
+	# print len(linene)
+	label_list=train.label_unicode()
+	i=0
+	string=''
+	#selecting each line
+	for l in line:
+		cv2.imwrite('temp/zline_'+str(i)+'.png',l.data)
+		string=string+'\n'
+		j=0
+		#selecting words in a line
+		for w in l.word_list:
+			#cv2.imwrite('zword_'+str(i)+'_word_'+str(j)+'.png',w.data)
+			string=string+' '
+			j+=1
+			k=0
+			c=0
+
+			#Formatting characters in the word
+			while(c<len(w.char_list)):
+				char= w.char_list[c]
+				try:
+					#checking whether the input is  ' or " or ,
+					if(label_list[int(char.label)]in ['\'',',']):
+						char2=w.char_list[c+1]
+						if(label_list[int(char2.label)]in ['\'',',']):
+							string=string+'\"'
+							c+=1
+						else:
+							string=string+label_list[int(char.label)]
+					#checking whether the input is  ൈ  or െ
+					elif(label_list[int(char.label)]in ['െ','േ','്ര']):
+						char2=w.char_list[c+1]
+						if(label_list[int(char2.label)]in ['െ','്ര']):
+							char3=w.char_list[c+2]
+							string=string+label_list[int(char3.label)]
+							c+=1
+						string=string+label_list[int(char2.label)]
+						string=string+label_list[int(char.label)]
+						c+=1
+					else:
+						string=string+label_list[int(char.label)]
+				except IndexError:
+					string=string+label_list[int(char.label)]
+				# cv2.imwrite('output/zcline_'+str(i)+'_word_'+str(j)+'_c_'+str(k)+str(int(w.char_list[c].label))+'.png',w.char_list[c].data)
+				k+=1
+				c+=1
+		i+=1
+	return string
