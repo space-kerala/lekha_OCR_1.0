@@ -304,7 +304,7 @@ def zonewise_hu5(img):#diagonal with more contours
 
 def load():
 	classifier.load('svm_class.xml')
-
+load()
 def test():
 	load()
 	count,correct=0,0

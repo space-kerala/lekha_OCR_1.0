@@ -24,4 +24,4 @@ img = pp.preprocess(img)
 im=img
 im,rot = pp.skew_correction(img)
 # Add Layout analysis here
-print recognize_block(im)
+print pp.recognize_block(im)

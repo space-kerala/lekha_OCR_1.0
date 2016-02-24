@@ -228,10 +228,9 @@ def find_sw(img):
 	stroke_width = array.index(max(array))
 	return stroke_width
 
-
+'''Recgnizing a block of scanned image'''
 def recognize_block(im):
-"""Recgnizing a block of scanned image"""
-	line = pp.find_lines(im)
+	line = find_lines(im)
 	# print len(linene)
 	label_list=train.label_unicode()
 	i=0
