@@ -227,3 +227,56 @@ def find_sw(img):
 	array[0]=0
 	stroke_width = array.index(max(array))
 	return stroke_width
+
+
+def recognize_block(im):
+"""Recgnizing a block of scanned image"""
+	line = pp.find_lines(im)
+	# print len(linene)
+	label_list=train.label_unicode()
+	i=0
+	string=''
+	#selecting each line
+	for l in line:
+		cv2.imwrite('temp/zline_'+str(i)+'.png',l.data)
+		string=string+'\n'
+		j=0
+		#selecting words in a line
+		for w in l.word_list:
+			#cv2.imwrite('zword_'+str(i)+'_word_'+str(j)+'.png',w.data)
+			string=string+' '
+			j+=1
+			k=0
+			c=0
+
+			#Formatting characters in the word
+			while(c<len(w.char_list)):
+				char= w.char_list[c]
+				try:
+					#checking whether the input is  ' or " or ,
+					if(label_list[int(char.label)]in ['\'',',']):
+						char2=w.char_list[c+1]
+						if(label_list[int(char2.label)]in ['\'',',']):
+							string=string+'\"'
+							c+=1
+						else:
+							string=string+label_list[int(char.label)]
+					#checking whether the input is  ൈ  or െ
+					elif(label_list[int(char.label)]in ['െ','േ','്ര']):
+						char2=w.char_list[c+1]
+						if(label_list[int(char2.label)]in ['െ','്ര']):
+							char3=w.char_list[c+2]
+							string=string+label_list[int(char3.label)]
+							c+=1
+						string=string+label_list[int(char2.label)]
+						string=string+label_list[int(char.label)]
+						c+=1
+					else:
+						string=string+label_list[int(char.label)]
+				except IndexError:
+					string=string+label_list[int(char.label)]
+				# cv2.imwrite('output/zcline_'+str(i)+'_word_'+str(j)+'_c_'+str(k)+str(int(w.char_list[c].label))+'.png',w.char_list[c].data)
+				k+=1
+				c+=1
+		i+=1
+	return string
