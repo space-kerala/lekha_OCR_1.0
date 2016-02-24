@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Sep 17 10:22:39 2015
-
 @author: james
 """
 #Preprocess and Segmentation
@@ -32,6 +31,10 @@ def skew_correction(img):
 		height,width=box.shape
 	else:
 		box = img
+	# Canny : Extracts the edges from the image
+	# Read More : http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html
+	# HoughLines : Gets the lines from the image
+	# http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html
 	edges = cv2.Canny(box,50,150,apertureSize = 3)
 	lines = cv2.HoughLines(edges,1,np.pi/360,width/5,width/2,height/10)
 #	print lineskernel3 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
@@ -70,8 +73,12 @@ def center_box(img,cnt):
 	char=img[y-1:y+h+1,x-1:x+w+1]
 	return char
 	
-
+# Left for layout analysis : For later development
 def find_blocks(img):
+	"""Finds the blocks of text and converts it to a binary image
+		Then reduces noise"""
+	# uint16 : Unsigned integer (0 to 65535)
+	# ones : Return a new array of given shape and type, filled with ones.
 	kernel = np.ones((6,4),np.uint16)
 	kernel2 = np.ones((4,4),np.uint16)
 	#Erosion : Discards pixels near boundary,thinckness of foreground obj decreases.Reduces noise
@@ -83,7 +90,6 @@ def find_blocks(img):
 	im = cv2.dilate(img,kernel2,iterations = 6)
 #	im = cv2.erode(img,kernel,iterations = 2)
 	cv2.imwrite('block.png',im)
-
 
 
 def find_lines(img):
@@ -114,7 +120,7 @@ def find_lines(img):
 	return line_list
 
 class Line:
-	"""Cuts the blocks into lines.Then sends it to be sent as words"""
+	"""Cuts the blocks into lines.Then sends it to be cut as words"""
 	no_words = 0
 	def __init__(self,img):
 		self.data = img
@@ -221,3 +227,56 @@ def find_sw(img):
 	array[0]=0
 	stroke_width = array.index(max(array))
 	return stroke_width
+
+
+def recognize_block(im):
+"""Recgnizing a block of scanned image"""
+	line = pp.find_lines(im)
+	# print len(linene)
+	label_list=train.label_unicode()
+	i=0
+	string=''
+	#selecting each line
+	for l in line:
+		cv2.imwrite('temp/zline_'+str(i)+'.png',l.data)
+		string=string+'\n'
+		j=0
+		#selecting words in a line
+		for w in l.word_list:
+			#cv2.imwrite('zword_'+str(i)+'_word_'+str(j)+'.png',w.data)
+			string=string+' '
+			j+=1
+			k=0
+			c=0
+
+			#Formatting characters in the word
+			while(c<len(w.char_list)):
+				char= w.char_list[c]
+				try:
+					#checking whether the input is  ' or " or ,
+					if(label_list[int(char.label)]in ['\'',',']):
+						char2=w.char_list[c+1]
+						if(label_list[int(char2.label)]in ['\'',',']):
+							string=string+'\"'
+							c+=1
+						else:
+							string=string+label_list[int(char.label)]
+					#checking whether the input is  ൈ  or െ
+					elif(label_list[int(char.label)]in ['െ','േ','്ര']):
+						char2=w.char_list[c+1]
+						if(label_list[int(char2.label)]in ['െ','്ര']):
+							char3=w.char_list[c+2]
+							string=string+label_list[int(char3.label)]
+							c+=1
+						string=string+label_list[int(char2.label)]
+						string=string+label_list[int(char.label)]
+						c+=1
+					else:
+						string=string+label_list[int(char.label)]
+				except IndexError:
+					string=string+label_list[int(char.label)]
+				# cv2.imwrite('output/zcline_'+str(i)+'_word_'+str(j)+'_c_'+str(k)+str(int(w.char_list[c].label))+'.png',w.char_list[c].data)
+				k+=1
+				c+=1
+		i+=1
+	return string
