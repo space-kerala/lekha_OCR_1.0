@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Sep 17 10:22:39 2015
-
 @author: james
 """
 #Preprocess and Segmentation
@@ -32,6 +31,10 @@ def skew_correction(img):
 		height,width=box.shape
 	else:
 		box = img
+	# Canny : Extracts the edges from the image
+	# Read More : http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html
+	# HoughLines : Gets the lines from the image
+	# http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html
 	edges = cv2.Canny(box,50,150,apertureSize = 3)
 	lines = cv2.HoughLines(edges,1,np.pi/360,width/5,width/2,height/10)
 #	print lineskernel3 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
@@ -70,8 +73,12 @@ def center_box(img,cnt):
 	char=img[y-1:y+h+1,x-1:x+w+1]
 	return char
 	
-
+# Left for layout analysis : For later development
 def find_blocks(img):
+	"""Finds the blocks of text and converts it to a binary image
+		Then reduces noise"""
+	# uint16 : Unsigned integer (0 to 65535)
+	# ones : Return a new array of given shape and type, filled with ones.
 	kernel = np.ones((6,4),np.uint16)
 	kernel2 = np.ones((4,4),np.uint16)
 	#Erosion : Discards pixels near boundary,thinckness of foreground obj decreases.Reduces noise
@@ -83,7 +90,6 @@ def find_blocks(img):
 	im = cv2.dilate(img,kernel2,iterations = 6)
 #	im = cv2.erode(img,kernel,iterations = 2)
 	cv2.imwrite('block.png',im)
-
 
 
 def find_lines(img):
@@ -114,7 +120,7 @@ def find_lines(img):
 	return line_list
 
 class Line:
-	"""Cuts the blocks into lines.Then sends it to be sent as words"""
+	"""Cuts the blocks into lines.Then sends it to be cut as words"""
 	no_words = 0
 	def __init__(self,img):
 		self.data = img
