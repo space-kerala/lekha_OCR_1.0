@@ -79,7 +79,7 @@ def find_lines(img):
 		for j in range(0,width):
 			hor_pix_den[i]+=img[i,j]
 		hor_pix_den[i]/=255
-#	print hor_pix_den
+	# print hor_pix_den
 	max_cuts = 8
 	min_line_width = 20
 	j,start=0,0
