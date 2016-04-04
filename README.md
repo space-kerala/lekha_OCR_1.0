@@ -1,3 +1,7 @@
+New development of this project available on gitlab
+=======
+https://gitlab.com/space-kerala/lekha-OCR
+
 Note: This project is under development. All modules are written in python. For image processing opencv is used
 # lekha_OCR_1.0
 Printed text recognizer for Malayalam, Lekha OCR is an optical character recognizer trained for the recognition of printed malayalam Documents.
